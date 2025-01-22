@@ -110,7 +110,7 @@ runcmd:
   - /tmp/nodeadm install ${kubernetes_version} --credential-provider ssm
   - ./nodeadm init -c file:///tmp/nodeConfig.yaml
   - echo "*******************************************************************************"
-  - echo " Install and Configure Helm and Container Networking Interface..."
+  - echo " Install Helm and Configure Container Networking Interface..."
   - echo "*******************************************************************************"
   - snap install helm --classic
   - helm repo add cilium https://helm.cilium.io/

@@ -43,6 +43,7 @@ export TF_VAR_remote_node_network=
 export TF_VAR_remote_node_network_adapter_bridge=
 export TF_VAR_remote_node_network_adapter_id=
 export TF_VAR_remote_node_network_adapter_model=
+export TF_VAR_remote_node_network_gateway=
 export TF_VAR_remote_node_socket_count=
 export TF_VAR_remote_pod_network=
 export TF_VAR_repository=$GITHUB_REPOSITORY

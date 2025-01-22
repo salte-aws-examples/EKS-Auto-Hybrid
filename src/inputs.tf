@@ -115,9 +115,19 @@ variable remote_node_network_adapter_bridge {
   description = "The bridge adapter to use for on-premises nodes."
 }
 
+variable remote_node_network_adapter_id {
+  type        = string
+  description = "The network adapter ID to use for on-premises nodes."
+}
+
 variable remote_node_network_adapter_model {
   type        = string
   description = "The network adapter model to use for on-premises nodes."
+}
+
+variable remote_node_network_gateway {
+  type        = string
+  description = "The gateway to use for on-premises nodes."
 }
 
 variable remote_node_scsi_controller {

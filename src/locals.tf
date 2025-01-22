@@ -1,5 +1,7 @@
 data "aws_caller_identity" "current" {}
 
+data aws_region "default" {}
+
 # EKS does not support creating control plane instances in us-east-1e
 data "aws_subnets" "private" {
   filter {
@@ -36,8 +38,8 @@ data "template_file" "proxmox_user_data" {
   vars     = {
     activation_code                 = aws_ssm_activation.default.activation_code
     activation_id                   = aws_ssm_activation.default.id
-    aws_access_key_id               = data.external.get_session_token.result.access_key_id
-    aws_secret_access_key           = data.external.get_session_token.result.secret_access_key
+    aws_access_key_id               = data.external.get_session_token.result.access_key
+    aws_secret_access_key           = data.external.get_session_token.result.secret_key
     aws_session_token               = data.external.get_session_token.result.session_token
     cilium_version                  = var.cilium_version
     cluster_name                    = aws_eks_cluster.default.name

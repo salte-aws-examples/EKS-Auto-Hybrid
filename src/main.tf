@@ -212,7 +212,7 @@ resource "aws_eks_cluster" "default" {
   name     = "${local.base_name}-cluster"
   role_arn = aws_iam_role.eks_cluster_role.arn
   tags     = local.tags
-  version  = local.kubernetes_version
+  version  = var.kubernetes_version
 
   access_config {
     authentication_mode = "API_AND_CONFIG_MAP"
@@ -313,16 +313,17 @@ resource "aws_eks_access_policy_association" "eks_cluster_admin" {
 # *****************************************************************************
 resource "aws_ssm_activation" "default" {
   name               = local.base_name
-  description        = "Activation for hybrid nodes associated with EKS cluster ""${aws_eks_cluster.default.name}."""
+  description        = "Activation for hybrid nodes associated with EKS cluster \"${aws_eks_cluster.default.name}.\""
   iam_role           = aws_iam_role.eks_hybrid_node_role.id
-  registration_limit = local.remote_node_count
-  tags               = join(" ", [ for key, value in local.tags : "\"Key=${key},Value=${value}\"" ])
+  registration_limit = var.remote_node_count
+  tags               = local.tags
   depends_on         = [
-    aws_iam_role_policy_attachment.eks_hybrid_node_role,
+    aws_iam_role.eks_hybrid_node_role,
     aws_iam_role_policy_attachment.eks_hybrid_node_registry_policy,
     aws_iam_role_policy_attachment.eks_hybrid_node_minimal_policy,
     aws_iam_role_policy_attachment.eks_hybrid_node_ssm_policy,
-    aws_iam_policy.eks_hybrid_node_policy
+    aws_iam_policy.eks_hybrid_node_policy,
+    aws_iam_role_policy_attachment.eks_hybrid_node_policy
   ]
 }
 
@@ -341,7 +342,7 @@ resource "null_resource" "user_data" {
   }
 
   provisioner "file" {
-    content  = data.template_file.user_data[count.index].rendered
+    content  = data.template_file.proxmox_user_data[count.index].rendered
     destination = "${var.proxmox_user_data_file_path}/${sha256(data.template_file.proxmox_user_data[count.index].rendered)}"
   }
 }
@@ -349,14 +350,14 @@ resource "null_resource" "user_data" {
 resource "proxmox_vm_qemu" "default" {
   count = var.remote_node_count
 
-  cicustom                = "user=${var.proxmox_user_data_file_url}/${sha256(data.template_file.user_data[count.index].rendered)}"
-  clone                   = local.proxmox_ubuntu_template
+  cicustom                = "user=${var.proxmox_user_data_file_url}/${sha256(data.template_file.proxmox_user_data[count.index].rendered)}"
+  clone                   = var.proxmox_ubuntu_template
   cores                   = var.remote_node_core_count
-  desc                    = "Hybrid node associated with EKS cluster ""${aws_eks_cluster.default.name}"" hosted in AWS account number ""${local.account_number}."""
+  desc                    = "Hybrid node associated with EKS cluster \"${aws_eks_cluster.default.name}\" hosted in AWS account number \"${local.account_number}.\""
   full_clone              = true
-  ipconfig0               = "ip=${var.IP_ADDRESS}/${var.NETMASK},gw=${var.DEFAULT_GATEWAY}"
+  # ipconfig0               = "ip=${var.IP_ADDRESS}/${var.NETMASK},gw=${var.remote_node_network_gateway}"
   memory                  = var.remote_node_memory_size
-  name                    = local.name
+  name                    = format("${local.base_name}-%02d", count.index)
   os_type                 = "cloud-init"
   scsihw                  = var.remote_node_scsi_controller
   sockets                 = var.remote_node_socket_count

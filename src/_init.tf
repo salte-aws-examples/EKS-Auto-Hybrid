@@ -28,7 +28,7 @@ terraform {
 provider "aws" {}
 
 provider "proxmox" {
-  pm_api_url = "https://${proxmox_node}.${proxmox_domain}:${proxmox_port}/api2/json"
+  pm_api_url = "https://${var.proxmox_node}.${var.proxmox_domain}:${var.proxmox_port}/api2/json"
   pm_password = var.proxmox_password
   pm_tls_insecure = true
   pm_user = "${var.proxmox_user}@pam"
